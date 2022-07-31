@@ -332,6 +332,7 @@ doCommand.openwellusb = function() {
 		return('Loading Package Found at /USB/package.');
 	}
 	else if (fs.existsSync('/media/usb0/content')) {
+		execute('sudo rm /media/usb0/content/saved.zip');
 		exec('sudo /usr/local/connectbox/bin/enhancedInterfaceUSBLoader.py >/tmp/loadContent.log 2>&1');
 		return ('Loading content from /USB/content.');
 	}
