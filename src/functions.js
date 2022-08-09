@@ -90,6 +90,11 @@ set.apchannel = function (json){
 
 //DICT:GET:clientwifiscan: Scan for Available Networks
 get.clientwifiscan = function (){
+	var response = await scanForNetworks(0);
+	return(response);
+}
+
+async function scanForNetworks(counter) {
 	var types = {'on':true,'off':false};
 	var response = [];
 	var wifi = {"accesspoint":"wlan1","client":"wlan0"};  // Defaults
@@ -98,23 +103,32 @@ get.clientwifiscan = function (){
 		wifi.client = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
 	}
 	var output = execute(`sudo iwlist ${wifi.client} scan`);
-	for (var outputRecord of output.split(' - Address:')) {
-		var record = {};
-		for (var line of outputRecord.split('\n')) {
-			line = line.trim();
-			var [key,val] = line.split(':');
-			if (key === 'ESSID') {
-				record.ssid = val.replace(/\"/g,"");
+	if (counter === 5) {
+		response = [];
+	}
+	else if (output.contains('Interface doesn't support scanning')) {
+		// If we get a busy response from interface, try up to 5 times.
+		response = scanForNetworks(counter+1);
+	}
+	else {
+		for (var outputRecord of output.split(' - Address:')) {
+			var record = {};
+			for (var line of outputRecord.split('\n')) {
+				line = line.trim();
+				var [key,val] = line.split(':');
+				if (key === 'ESSID') {
+					record.ssid = val.replace(/\"/g,"");
+				}
+				if (key === 'Encryption key') {
+					record.encryption = types[val];
+				}
 			}
-			if (key === 'Encryption key') {
-				record.encryption = types[val];
+			if (record.ssid && record.ssid.length > 0) {
+				response.push(record);
 			}
-		}
-		if (record.ssid && record.ssid.length > 0) {
-			response.push(record);
 		}
 	}
-	return(response);
+	return (response);
 }
 
 //DICT:GET:clientssid: Client Wi-Fi SSID
