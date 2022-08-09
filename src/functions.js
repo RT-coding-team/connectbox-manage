@@ -90,11 +90,6 @@ set.apchannel = function (json){
 
 //DICT:GET:clientwifiscan: Scan for Available Networks
 get.clientwifiscan = function (){
-	var response = await scanForNetworks(0);
-	return(response);
-}
-
-async function scanForNetworks(counter) {
 	var types = {'on':true,'off':false};
 	var response = [];
 	var wifi = {"accesspoint":"wlan1","client":"wlan0"};  // Defaults
@@ -102,33 +97,36 @@ async function scanForNetworks(counter) {
 		wifi.accesspoint = execute(`grep 'AccessPointIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
 		wifi.client = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
 	}
-	var output = execute(`sudo iwlist ${wifi.client} scan`);
-	if (counter === 5) {
-		response = [];
-	}
-	else if (output.contains('Interface doesn't support scanning')) {
-		// If we get a busy response from interface, try up to 5 times.
-		response = scanForNetworks(counter+1);
-	}
-	else {
-		for (var outputRecord of output.split(' - Address:')) {
-			var record = {};
-			for (var line of outputRecord.split('\n')) {
-				line = line.trim();
-				var [key,val] = line.split(':');
-				if (key === 'ESSID') {
-					record.ssid = val.replace(/\"/g,"");
-				}
-				if (key === 'Encryption key') {
-					record.encryption = types[val];
-				}
-			}
-			if (record.ssid && record.ssid.length > 0) {
-				response.push(record);
-			}
+	var loop = 0;  //  Run up to five loops on checking the scan
+	var output = '';
+	while (loop < 5) {
+		console.log(`clientwifiscan: Attempt: ${loop}`);
+		output = execute(`sudo iwlist ${wifi.client} scan`);
+		if (output.includes("Interface doesn't support scanning")) {
+			loop ++;  // Invalid output -- run again
+		}
+		else {
+			console.log(`clientwifiscan: Success`);
+			loop = 10;  // Exit from loop
 		}
 	}
-	return (response);
+	for (var outputRecord of output.split(' - Address:')) {
+		var record = {};
+		for (var line of outputRecord.split('\n')) {
+			line = line.trim();
+			var [key,val] = line.split(':');
+			if (key === 'ESSID') {
+				record.ssid = val.replace(/\"/g,"");
+			}
+			if (key === 'Encryption key') {
+				record.encryption = types[val];
+			}
+		}
+		if (record.ssid && record.ssid.length > 0) {
+			response.push(record);
+		}
+	}
+	return(response);
 }
 
 //DICT:GET:clientssid: Client Wi-Fi SSID
