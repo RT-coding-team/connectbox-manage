@@ -103,6 +103,7 @@ get.clientwifiscan = function (){
 		console.log(`clientwifiscan: Attempt: ${loop}`);
 		output = execute(`sudo iwlist ${wifi.client} scan`);
 		if (output.includes("Interface doesn't support scanning")) {
+			execute('sleep 0.3');  // Wait before trying again
 			loop ++;  // Invalid output -- run again
 		}
 		else {
