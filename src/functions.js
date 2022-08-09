@@ -189,8 +189,8 @@ set.wifirestart = function (json){
 get.wifistatus = function (){
 	var wifi = {"accesspoint":"wlan1","client":"wlan0"};  // Defaults
 	if (fs.existsSync('/usr/local/connectbox/wificonf.txt')) {
-		wifi["Access Point Status"] = execute(`grep 'AccessPointIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
-		wifi["Client Wi-Fi Status"] = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+		wifi["accesspoint"] = execute(`grep 'AccessPointIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+		wifi["client"] = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
 	}
 	var response = {
 		accesspoint: execute(`iwconfig ${wifi.accesspoint} && ifconfig ${wifi.accesspoint}` || null),
