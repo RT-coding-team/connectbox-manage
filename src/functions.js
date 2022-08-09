@@ -92,7 +92,11 @@ set.apchannel = function (json){
 get.clientwifiscan = function (){
 	var types = {'on':true,'off':false};
 	var response = [];
-	var output = execute(`sudo iwlist wlan1 scan`);
+	if (fs.existsSync('/usr/local/connectbox/wificonf.txt')) {
+		wifi.accesspoint = execute(`grep 'AccessPointIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+		wifi.client = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+	}
+	var output = execute(`sudo iwlist ${wifi.client} scan`);
 	for (var outputRecord of output.split(' - Address:')) {
 		var record = {};
 		for (var line of outputRecord.split('\n')) {
