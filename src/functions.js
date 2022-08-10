@@ -361,8 +361,8 @@ doCommand.openwellusb = function() {
 
 //DICT:SET:coursedownload (URL): Download the Moodle course and install
 set.coursedownload = function(json) {
-	execute(`sudo wget -O /tmp/download.mbz ${json.value} >/tmp/loadContent.log 2>&1`);
-	return(execute(`sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/restore_backup.php --file=/tmp/download.mbz --categoryid=1`));
+	exec(`(sudo wget -nv -O /tmp/download.mbz -o /tmp/loadContent.log '${json.value}' && sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/restore_backup.php --file=/tmp/download.mbz --categoryid=1) &`)
+	return (true)
 }
 
 //DICT:GET:coursesonusb: Get list of .mbz Moodle course files on /USB/courses
@@ -384,7 +384,7 @@ get.coursesonusb = function() {
 
 //DICT:SET:courseusb (filename): Trigger a loading of Moodle content from /USB/courses
 set.courseusb = function(json) {
-	execute(`sudo -u www-data php /var/www/moodle/admin/cli/restore_backup.php -f="/media/usb0/courses/${json.value}" -c=1 >/tmp/loadContent.log 2>&1`);
+	exec(`sudo -u www-data php /var/www/moodle/admin/cli/restore_backup.php -f="/media/usb0/courses/${json.value}" -c=1 >/tmp/loadContent.log 2>&1`);
 	return true;
 }
 
