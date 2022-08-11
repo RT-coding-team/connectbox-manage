@@ -58,6 +58,7 @@ Log into Moodle with an administration account.  First, we need to create a cust
     - Click Add Service
 - Click Add functions
     - Add the following functions:
+        - core_cohort_create_cohorts
         - core_user_get_users
         - core_user_get_users_by_field
         - core_user_create_users

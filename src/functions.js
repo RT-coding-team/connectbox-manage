@@ -616,6 +616,15 @@ set.disable_stats = function (json){
 /**
  * Moodle functions
  */
+//NODICT:POST:lms_classes (json): Create a new class (cohort) for the LMS
+post.lms_classes = function (json) {
+  let data = json;
+  try {
+    data = JSON.parse(json);
+  } catch (e) {
+  }
+  return lms.post_class(data).then((response) =>  response);
+}
 //NODICT:GET:lms_courses (id?): Get a list of courses from the LMS. If id is supplied, get the specific course.
 get.lms_courses = function (id) {
   if (id) {
