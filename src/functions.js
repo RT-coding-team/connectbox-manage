@@ -625,6 +625,10 @@ post.lms_classes = function (json) {
   }
   return lms.post_class(data).then((response) =>  response);
 }
+//NODICT:GET:lms_classes (id?): Get a list of classes (cohorts) from the LMS. If id is supplied, get the specific class.
+get.lms_classes = function (id) {
+  return lms.get_classes(id).then((response) =>  response);
+}
 //NODICT:GET:lms_courses (id?): Get a list of courses from the LMS. If id is supplied, get the specific course.
 get.lms_courses = function (id) {
   if (id) {

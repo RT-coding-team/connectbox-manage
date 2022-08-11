@@ -30,6 +30,28 @@ lms.can_make_request = () =>  {
   return ((lms.token !== '') && (lms.url !== ''));
 };
 /**
+ * Get a list of classes (cohorts in Moodle)
+ *
+ * @return {Promise} The JSON response
+ */
+lms.get_classes = async (id) => {
+  if (!lms.can_make_request()) {
+    return 'You need to set the url and token!';
+  }
+  const ids = [];
+  if (id) {
+    ids.append(id);
+  }
+  const params = {
+    'wstoken': lms.token,
+    'wsfunction': 'core_cohort_get_cohorts',
+    'moodlewsrestformat': 'json',
+    'cohortids': ids,
+  };
+  const response = await axios.post(lms.url, null, {params: params});
+  return response.data;
+};
+/**
  * Create a new class in the LMS (cohort in Moodle)
  *
  * @param  {object}  data The JSON object of data for the new class
