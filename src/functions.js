@@ -92,7 +92,25 @@ set.apchannel = function (json){
 get.clientwifiscan = function (){
 	var types = {'on':true,'off':false};
 	var response = [];
-	var output = execute(`sudo iwlist wlan1 scan`);
+	var wifi = {"accesspoint":"wlan1","client":"wlan0"};  // Defaults
+	if (fs.existsSync('/usr/local/connectbox/wificonf.txt')) {
+		wifi.accesspoint = execute(`grep 'AccessPointIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+		wifi.client = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+	}
+	var loop = 0;  //  Run up to five loops on checking the scan
+	var output = '';
+	while (loop < 5) {
+		console.log(`clientwifiscan: Attempt: ${loop}`);
+		output = execute(`sudo iwlist ${wifi.client} scan`);
+		if (output.includes("Interface doesn't support scanning")) {
+			execute('sleep 1');  // Wait before trying again
+			loop ++;  // Invalid output -- run again
+		}
+		else {
+			console.log(`clientwifiscan: Success`);
+			loop = 10;  // Exit from loop
+		}
+	}
 	for (var outputRecord of output.split(' - Address:')) {
 		var record = {};
 		for (var line of outputRecord.split('\n')) {
@@ -184,8 +202,8 @@ set.wifirestart = function (json){
 get.wifistatus = function (){
 	var wifi = {"accesspoint":"wlan1","client":"wlan0"};  // Defaults
 	if (fs.existsSync('/usr/local/connectbox/wificonf.txt')) {
-		wifi["Access Point Status"] = execute(`grep 'AccessPointIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
-		wifi["Client Wi-Fi Status"] = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+		wifi["accesspoint"] = execute(`grep 'AccessPointIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
+		wifi["client"] = execute(`grep 'ClientIF' /usr/local/connectbox/wificonf.txt | cut -d"=" -f2`);
 	}
 	var response = {
 		accesspoint: execute(`iwconfig ${wifi.accesspoint} && ifconfig ${wifi.accesspoint}` || null),
@@ -228,7 +246,7 @@ doCommand.sync = function() {
 		return('Syncing Moodle With Server');
 	}
 	else {
-		exec(`sudo -u www-data /usr/bin/python /usr/local/connectbox/bin/phonehome.py >/tmp/push_messages.log  2>&1`);
+		exec(`sudo -u www-data /usr/local/connectbox/bin/phonehome.py >/tmp/push_messages.log  2>&1`);
 		return('Syncing Without Moodle');
 	}
 }
@@ -332,6 +350,7 @@ doCommand.openwellusb = function() {
 		return('Loading Package Found at /USB/package.');
 	}
 	else if (fs.existsSync('/media/usb0/content')) {
+		execute('sudo rm /media/usb0/content/saved.zip');
 		exec('sudo /usr/local/connectbox/bin/enhancedInterfaceUSBLoader.py >/tmp/loadContent.log 2>&1');
 		return ('Loading content from /USB/content.');
 	}
@@ -342,8 +361,8 @@ doCommand.openwellusb = function() {
 
 //DICT:SET:coursedownload (URL): Download the Moodle course and install
 set.coursedownload = function(json) {
-	execute(`sudo wget -O /tmp/download.mbz ${json.value} >/tmp/loadContent.log 2>&1`);
-	return(execute(`sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/restore_backup.php --file=/tmp/download.mbz --categoryid=1`));
+	exec(`(sudo wget -nv -O /tmp/download.mbz -o /tmp/loadContent.log '${json.value}' && sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/restore_backup.php --file=/tmp/download.mbz --categoryid=1) &`)
+	return (true)
 }
 
 //DICT:GET:coursesonusb: Get list of .mbz Moodle course files on /USB/courses
@@ -365,7 +384,7 @@ get.coursesonusb = function() {
 
 //DICT:SET:courseusb (filename): Trigger a loading of Moodle content from /USB/courses
 set.courseusb = function(json) {
-	execute(`sudo -u www-data php /var/www/moodle/admin/cli/restore_backup.php -f="/media/usb0/courses/${json.value}" -c=1 >/tmp/loadContent.log 2>&1`);
+	exec(`sudo -u www-data php /var/www/moodle/admin/cli/restore_backup.php -f="/media/usb0/courses/${json.value}" -c=1 >/tmp/loadContent.log 2>&1`);
 	return true;
 }
 

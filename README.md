@@ -3,6 +3,9 @@ This project replaces the 2018 Bash script ConnectBoxManage.sh in connectbox-pi 
 
 This is a node.js javascript application leveraging a common library of management functions for the Connectbox based platforms.  These functions are available through an API and through a command-line interface (CLI).
 
+* The application is written in nodejs and runs in the pm2 process handler for nodejs applications.  The API is available on port 5002.
+* The CLI is written in python and converts command line arguments into API calls hitting the localhost:5002 API.  This was done due to performance issues with the nodejs CLI on low capability CPUs.
+
 # Installation and Development
 Connectbox-pi Ansible will install this application but should you want to install on another machine or for development:
 * git clone the repo to your machine.
@@ -41,6 +44,10 @@ get.clientssid = function (){
 * A nodejs docker could be used to run the application.
 
 # Create A Moodle API Token
+
+The connectbox repo default Moodle database has these defaults and creates a token at build time.  
+
+This is the process for performing this manually:
 
 Log into Moodle with an administration account.  First, we need to create a custom API service:
 

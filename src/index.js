@@ -47,6 +47,12 @@ app.get('/admin/api/logout', function(req,res) {
 	res.sendStatus(200);
 })
 
+app.get('/admin/api/ismoodle', function(req,res) {
+	var data = {code:0,result: [functions.get["ismoodle"]()]};
+	logger.log('debug', `${req.method} ${req.originalUrl}: ${data.result[0]}`);
+	res.send(data);
+})
+
 app.put('/admin/api/weblog', function(req,res) {
 	logger.log('debug', `${req.method} ${req.originalUrl}: ${req.body.value.mediaIdentifier}`);
 	try {

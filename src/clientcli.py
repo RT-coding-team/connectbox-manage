@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #  Provides front-end command line interface.  Requires port 5002 operating instance of connectbox-manage/src/index.js (probably in PM2)
 import requests
@@ -95,7 +95,7 @@ if (response.status_code != 200):
 try:
 	obj = response.json()
 	result = obj[u'result']
-	final = result[0]
+	final = json.dumps(result[0])
 	print (final)
 except:
 	print ("Invalid Data: " + response.text)
