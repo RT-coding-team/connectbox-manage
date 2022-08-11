@@ -642,6 +642,10 @@ put.lms_classes = function (json) {
   const id = data.id;
   return lms.put_class(id, data).then((response) =>  response);
 }
+//NODICT:DEL:lms_classes (id): Delete a class from the LMS
+del.lms_classes = function (id) {
+  return lms.delete_class(id).then((response) =>  response);
+}
 //NODICT:GET:lms_courses (id?): Get a list of courses from the LMS. If id is supplied, get the specific course.
 get.lms_courses = function (id) {
   if (id) {

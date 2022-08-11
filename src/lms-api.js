@@ -119,6 +119,32 @@ lms.put_class = async (id, data) => {
   return response.data;
 };
 /**
+ * Delete a given class (cohort)
+ *
+ * @param  {integer}  id  The id of the class (cohort) to delete.
+ * @return {Promise}      The JSON response
+ */
+lms.delete_class = async (id)  =>  {
+  if (!lms.can_make_request()) {
+    return 'You need to set the url and token!';
+  }
+  if (!id) {
+    return 'You must supply a vaild id!';
+  }
+
+  const params = {
+    'wstoken': lms.token,
+    'wsfunction': 'core_cohort_delete_cohorts',
+    'moodlewsrestformat': 'json',
+    'cohortids': [id],
+  };
+  const response = await axios.post(lms.url, null, {params: params});
+  if (!response.data) {
+    return 'The class has been deleted.';
+  }
+  return response.data;
+};
+/**
  * Get a list of courses
  *
  * @return {Promise} The JSON response
