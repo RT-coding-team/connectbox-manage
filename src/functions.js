@@ -629,6 +629,19 @@ post.lms_classes = function (json) {
 get.lms_classes = function (id) {
   return lms.get_classes(id).then((response) =>  response);
 }
+//NODICT:PUT:lms_classes (json): Update an existing class for the LMS. JSON must have an id set.
+put.lms_classes = function (json) {
+  let data = json;
+  try {
+    data = JSON.parse(json);
+  } catch (e) {
+  }
+  if (!('id' in data)) {
+    return 'You must provide a valid id!';
+  }
+  const id = data.id;
+  return lms.put_class(id, data).then((response) =>  response);
+}
 //NODICT:GET:lms_courses (id?): Get a list of courses from the LMS. If id is supplied, get the specific course.
 get.lms_courses = function (id) {
   if (id) {

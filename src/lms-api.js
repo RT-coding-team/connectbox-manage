@@ -83,6 +83,42 @@ lms.post_class = async (data) => {
   return response.data;
 };
 /**
+ * Update a class in the LMS (cohort in Moodle)
+ *
+ * @param  {integer} id   The id of the class (cohort) to update
+ * @param  {object}  data The JSON object of data for the updated class
+ * @return {Promise}      The JSON response
+ */
+lms.put_class = async (id, data) => {
+  if (!lms.can_make_request()) {
+    return 'You need to set the url and token!';
+  }
+  if (!id) {
+    return 'You must supply a vaild id!';
+  }
+  const slug = data.name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const params = {
+    'wstoken': lms.token,
+    'wsfunction': 'core_cohort_update_cohorts',
+    'moodlewsrestformat': 'json',
+    'cohorts[0][id]': id,
+    'cohorts[0][categorytype][type]': 'system',
+    'cohorts[0][categorytype][value]': '',
+    'cohorts[0][name]': data.name,
+    'cohorts[0][idnumber]': slug,
+  };
+  const response = await axios.post(lms.url, null, {params: params});
+  if (!response.data) {
+    return 'The class has been updated.';
+  }
+  return response.data;
+};
+/**
  * Get a list of courses
  *
  * @return {Promise} The JSON response
