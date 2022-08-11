@@ -28,12 +28,22 @@ app.use(cookieParser());
 app.use(cookieSession({name: 'relaytrust',keys: ['81143184-d876-11eb-b8bc-0242ac130003'],maxAge: 24 * 60 * 60 * 1000}));
 
 app.put('/admin/api/auth', function(req,res) {
-	console.log(req.body);
-	if (req.body && req.body.password && auth(req.body.password)) {
+  var advanced = (req.body && req.body.permission && req.body.permission === 'advanced_options');
+  if (advanced) {
+    var success = auth(req.body.password, advanced);
+    if (success) {
+      req.session.access_advanced = true;
+      response = {success: true};
+  		res.send(response);
+    } else {
+      res.sendStatus(401);
+    }
+  } else if (req.body && req.body.password && auth(req.body.password)) {
 		logger.log('debug', `${req.method} ${req.originalUrl}: Authorized`);
 		req.session.username = "admin";
+    req.session.access_advanced = false;
 		response = {username:"admin"};
-		res.send(response)
+		res.send(response);
 	}
 	else {
 		logger.log('debug', `${req.method} ${req.originalUrl}: FAILED`);
@@ -89,7 +99,7 @@ app.get(['/chat','/chat/:lastMessage'], function(req,res) {
 			}
 		}
 	}
-	logger.log('debug', `${req.method} ${req.originalUrl}: Sending ${chatArray.length} messages (Deleted ${deleteCount} messages prior to ${deleteTime})`);	
+	logger.log('debug', `${req.method} ${req.originalUrl}: Sending ${chatArray.length} messages (Deleted ${deleteCount} messages prior to ${deleteTime})`);
 	if (chatArray.length > 0) {
 		res.send(chatArray);
 	}
@@ -129,17 +139,22 @@ app.use('/admin/api', require('./routes/api.js'));
 
 
 
-function auth(password) {
+function auth(password, advanced) {
+  advanced = advanced || false;
+  var tag = (advanced) ? 'advanced' : 'admin';
 	try {
 		var authString = fs.readFileSync('/usr/local/connectbox/etc/basicauth','utf-8');
+    var authPieces = authString.split(/\r?\n/);
+    var passString = '';
+    for (var i = 0; i < authPieces.length; i++) {
+      if (authPieces[i].startsWith(tag)) {
+        passString = authPieces[i];
+        break;
+      }
+    }
 		var checkPassword = execSync(`echo ${password} | openssl passwd -apr1 -salt CBOX2018 -stdin`).toString().replace('\n','');
 		//console.log(`--${authString}--${'admin:' + checkPassword}--`);
-		if ('admin:' + checkPassword === authString) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return (tag + ':' + checkPassword === passString);
 	}
 	catch(e) {
 		console.log(`ERROR: auth: ${e}`);
