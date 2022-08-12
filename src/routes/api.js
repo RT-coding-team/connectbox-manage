@@ -59,6 +59,11 @@ router.put('/lms/classes/:id(\\d+)/users/:userid(\\d+)', async function enroll(r
   const data = {code:0,result: result};
   res.send(data);
 });
+router.delete('/lms/classes/:id(\\d+)/users/:userid(\\d+)', async function unenroll(req, res) {
+  const result = await functions.del['lms_unenroll_class_user'](req.params.id, req.params.userid);
+  const data = {code:0,result: result};
+  res.send(data);
+});
 router.get('/lms/:key/:id(\\d+)', async function get(req, res) {
   if (!('lms_'+req.params.key in functions.get)) {
     res.sendStatus(404);

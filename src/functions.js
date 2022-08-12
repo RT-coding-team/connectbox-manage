@@ -654,6 +654,10 @@ del.lms_classes = function (id) {
 put.lms_enroll_class_user = function (classid, userid, json) {
   return lms.put_enroll_class_user(classid, userid).then((response) =>  response);
 }
+//NODICT:DEL:lms_unenroll_class_user (class_id, user_id): Remove a user from a class.
+del.lms_unenroll_class_user = function (classid, userid) {
+  return lms.del_unenroll_class_user(classid, userid).then((response) =>  response);
+}
 //NODICT:GET:lms_courses (id?): Get a list of courses from the LMS. If id is supplied, get the specific course.
 get.lms_courses = function (id) {
   if (id) {

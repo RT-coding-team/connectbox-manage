@@ -193,9 +193,38 @@ lms.put_enroll_class_user = async (classid, userid) => {
     'members[0][usertype][value]': userid,
   };
   const response = await axios.post(lms.url, null, {params: params});
-  console.log(response.data);
   if (response.data.warnings.length == 0) {
     return 'The user has been enrolled in the class.';
+  }
+  return response.data;
+};
+/**
+ * Remove a user from a class (cohort)
+ *
+ * @param  {integer}    classid The id of the class to remove from
+ * @param  {integer}    userid  The id of the user to remove
+ * @return {Promise}            A message of whether successful or the data
+ */
+lms.del_unenroll_class_user = async (classid, userid) => {
+  if (!lms.can_make_request()) {
+    return 'You need to set the url and token!';
+  }
+  if (!classid) {
+    return 'You must supply a vaild class id!';
+  }
+  if (!userid) {
+    return 'You must supply a vaild user id!';
+  }
+  const params = {
+    'wstoken': lms.token,
+    'wsfunction': 'core_cohort_delete_cohort_members',
+    'moodlewsrestformat': 'json',
+    'members[0][cohortid]': classid,
+    'members[0][userid]': userid,
+  };
+  const response = await axios.post(lms.url, null, {params: params});
+  if (!response.data) {
+    return 'The user has been unenrolled in the class.';
   }
   return response.data;
 };
