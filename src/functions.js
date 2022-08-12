@@ -629,6 +629,10 @@ post.lms_classes = function (json) {
 get.lms_classes = function (id) {
   return lms.get_classes(id).then((response) =>  response);
 }
+//NODICT:GET:lms_classes_roster (class_id): Get a list of users in the given class (cohort).
+get.lms_classes_roster = function (id) {
+  return lms.get_class_roster(id).then((response) =>  response);
+}
 //NODICT:PUT:lms_classes (json): Update an existing class for the LMS. JSON must have an id set.
 put.lms_classes = function (json) {
   let data = json;
@@ -645,6 +649,10 @@ put.lms_classes = function (json) {
 //NODICT:DEL:lms_classes (id): Delete a class from the LMS
 del.lms_classes = function (id) {
   return lms.delete_class(id).then((response) =>  response);
+}
+//NODICT:PUT:lms_enroll_class_user (class_id, user_id, json): Enroll a user into a class.
+put.lms_enroll_class_user = function (classid, userid, json) {
+  return lms.put_enroll_class_user(classid, userid).then((response) =>  response);
 }
 //NODICT:GET:lms_courses (id?): Get a list of courses from the LMS. If id is supplied, get the specific course.
 get.lms_courses = function (id) {

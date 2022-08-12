@@ -52,6 +52,28 @@ lms.get_classes = async (id) => {
   return response.data;
 };
 /**
+ * Get a list of members in the class (cohort)
+ *
+ * @param  {integer}    id  The id of the course
+ * @return {Promise}        The JSON response
+ */
+lms.get_class_roster = async (id) => {
+  if (!lms.can_make_request()) {
+    return 'You need to set the url and token!';
+  }
+  if (!id) {
+    return 'You must supply a vaild id!';
+  }
+  const params = {
+    'wstoken': lms.token,
+    'wsfunction': 'core_cohort_get_cohort_members',
+    'moodlewsrestformat': 'json',
+    'cohortids': [id],
+  };
+  const response = await axios.post(lms.url, null, {params: params});
+  return response.data;
+};
+/**
  * Create a new class in the LMS (cohort in Moodle)
  *
  * @param  {object}  data The JSON object of data for the new class
@@ -141,6 +163,39 @@ lms.delete_class = async (id)  =>  {
   const response = await axios.post(lms.url, null, {params: params});
   if (!response.data) {
     return 'The class has been deleted.';
+  }
+  return response.data;
+};
+/**
+ * Enroll a user into a class (cohort)
+ *
+ * @param  {integer}    classid The id of the class to enroll into
+ * @param  {integer}    userid  The id of the user to enroll
+ * @return {Promise}            A message of whether successful or the data
+ */
+lms.put_enroll_class_user = async (classid, userid) => {
+  if (!lms.can_make_request()) {
+    return 'You need to set the url and token!';
+  }
+  if (!classid) {
+    return 'You must supply a vaild class id!';
+  }
+  if (!userid) {
+    return 'You must supply a vaild user id!';
+  }
+  const params = {
+    'wstoken': lms.token,
+    'wsfunction': 'core_cohort_add_cohort_members',
+    'moodlewsrestformat': 'json',
+    'members[0][cohorttype][type]': 'id',
+    'members[0][cohorttype][value]': classid,
+    'members[0][usertype][type]': 'id',
+    'members[0][usertype][value]': userid,
+  };
+  const response = await axios.post(lms.url, null, {params: params});
+  console.log(response.data);
+  if (response.data.warnings.length == 0) {
+    return 'The user has been enrolled in the class.';
   }
   return response.data;
 };

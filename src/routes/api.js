@@ -49,6 +49,16 @@ router.delete('/lms/courses/:id(\\d+)/users/:userid(\\d+)', async function unenr
   const data = {code:0,result: result};
   res.send(data);
 });
+router.get('/lms/classes/:id(\\d+)/users', async function get(req, res) {
+  const result = await functions.get['lms_classes_roster'](req.params.id);
+  const data = {code:0,result: result};
+  res.send(data);
+});
+router.put('/lms/classes/:id(\\d+)/users/:userid(\\d+)', async function enroll(req, res) {
+  const result = await functions.put['lms_enroll_class_user'](req.params.id, req.params.userid, req.body);
+  const data = {code:0,result: result};
+  res.send(data);
+});
 router.get('/lms/:key/:id(\\d+)', async function get(req, res) {
   if (!('lms_'+req.params.key in functions.get)) {
     res.sendStatus(404);

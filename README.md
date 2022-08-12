@@ -60,8 +60,10 @@ Log into Moodle with an administration account.  First, we need to create a cust
     - Add the following functions:
         - core_cohort_create_cohorts
         - core_cohort_get_cohorts
+        - core_cohort_get_cohort_members
         - core_cohort_update_cohorts
         - core_cohort_delete_cohorts
+        - core_cohort_add_cohort_members
 
         - core_user_get_users
         - core_user_get_users_by_field
