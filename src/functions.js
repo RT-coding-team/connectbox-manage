@@ -686,6 +686,23 @@ put.lms_courses = function (json) {
 get.lms_courses_roster = function (id) {
   return lms.get_course_roster(id).then((response) =>  response);
 }
+//NODICT:GET:lms_courses_classes_roster (course_id): Get a list of classes in the given course.
+get.lms_courses_classes_roster = function (id) {
+  return lms.get_course_class_roster(id).then((response) =>  response);
+}
+//NODICT:PUT:lms_enroll_class (course_id, class_id, json): Enroll a class (cohort) into a course. By default enrolls as student.  In JSON body set roleid to change role.
+put.lms_enroll_class = function (courseid, classid, json) {
+  let data = json;
+  try {
+    data = JSON.parse(json);
+  } catch (e) {
+  }
+  return lms.enroll_course_roster_class(courseid, classid, data).then((response) =>  response);
+}
+//NODICT:DEL:lms_unenroll_class (course_id, class_id): Unenroll a class (cohort) from a course.
+del.lms_unenroll_class = function (courseid, classid) {
+  return lms.unenroll_course_roster_class(courseid, classid).then((response) =>  response);
+}
 //NODICT:PUT:lms_enroll_user (course_id, user_id, json): Enroll a user into a course. By default enrolls as student.  In JSON body set roleid to change role.
 put.lms_enroll_user = function (courseid, userid, json) {
   let data = json;

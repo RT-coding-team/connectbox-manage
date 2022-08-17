@@ -331,7 +331,7 @@ lms.put_course = async (id, data) => {
    return response.data;
 };
 /**
- * Get a list of students enrolled in a class
+ * Get a list of students enrolled in a course
  *
  * @param  {integer}  id  The id for the course
  * @return {Promise}      The JSON response
@@ -352,6 +352,107 @@ lms.get_course_roster = async (id)  =>  {
   };
   const response = await axios.post(lms.url, null, {params: params});
   return response.data;
+};
+/**
+ * Get a list of classes enrolled in a course
+ * NOTE: Requires this Moodle plugin:
+ * @link https://moodle.org/plugins/local_ws_enrolcohort
+ *
+ * @param  {integer}  id  The id for the course
+ * @return {Promise}      The JSON response
+ */
+lms.get_course_class_roster = async (id)  =>  {
+  if (!lms.can_make_request()) {
+    return 'You need to set the url and token!';
+  }
+  if (!id) {
+    return 'You must supply a vaild id!';
+  }
+
+  const params = {
+    'wstoken': lms.token,
+    'wsfunction': 'local_ws_enrolcohort_get_instances',
+    'moodlewsrestformat': 'json',
+    'course[id]': id,
+  };
+  const response = await axios.post(lms.url, null, {params: params});
+  return response.data;
+};
+/**
+ * Enroll the class into a course.
+ * NOTE: Requires this Moodle plugin:
+ * @link https://moodle.org/plugins/local_ws_enrolcohort
+ *
+ * @param  {integer}    courseid    The course id to enroll into
+ * @param  {integer}    classid     The cohort (class) id
+ * @param  {object}     data        The JSON data that stores a roleid if it exists.
+ *
+ * @return {Promise}                The response
+ */
+lms.enroll_course_roster_class = async (courseid, classid, data) => {
+    let roleid = 5;
+    if (!lms.can_make_request()) {
+      return 'You need to set the url and token!';
+    }
+    if (!courseid) {
+      return 'You must supply a vaild course id!';
+    }
+    if (!classid) {
+      return 'You must supply a vaild class id!';
+    }
+    if ((data)  && ('roleid' in data) && ([1, 3, 4, 5].includes(parseInt(data.roleid, 10)))) {
+      roleid = parseInt(data.roleid, 10);
+    }
+    const params = {
+      'wstoken': lms.token,
+      'wsfunction': 'local_ws_enrolcohort_add_instance',
+      'moodlewsrestformat': 'json',
+      'instance[courseid]': courseid,
+      'instance[cohortid]': classid,
+      'instance[roleid]': roleid,
+    };
+    const response = await axios.post(lms.url, null, {params: params});
+    if (response.data.message.includes('instance added')) {
+      return 'The class has been enrolled in the course.';
+    }
+    return response.data;
+};
+/**
+ * Unenroll a class (cohort) from a course
+ * NOTE: Requires this Moodle plugin:
+ * @link https://moodle.org/plugins/local_ws_enrolcohort
+ *
+ * @param  {integer}    courseid    The course id to enroll into
+ * @param  {integer}    classid     The cohort (class) id
+ *
+ * @return {Promise}                    The response
+ */
+lms.unenroll_course_roster_class = async (courseid, classid) => {
+    if (!lms.can_make_request()) {
+      return 'You need to set the url and token!';
+    }
+    if (!courseid) {
+      return 'You must supply a vaild course id!';
+    }
+    if (!classid) {
+      return 'You must supply a vaild class id!';
+    }
+    const roster = await lms.get_course_class_roster(courseid);
+    const enrollment = roster.data.find((enrol) => enrol.cohortid === parseInt(classid, 10));
+    if (typeof enrollment === 'undefined') {
+        return 'Unable to find the enrollment for this class.';
+    }
+    const params = {
+      'wstoken': lms.token,
+      'wsfunction': 'local_ws_enrolcohort_delete_instance',
+      'moodlewsrestformat': 'json',
+      'instance[id]': enrollment.id,
+    };
+    const response = await axios.post(lms.url, null, {params: params});
+    if (response.data.message.includes('instance deleted')) {
+      return 'The class has been removed from the course.';
+    }
+    return response.data;
 };
 /**
  * Enroll the user from the course. By default enrolls as a student.  Supply a roleid in
