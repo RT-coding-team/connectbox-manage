@@ -450,7 +450,7 @@ lms.unenroll_course_roster_class = async (courseid, classid) => {
     };
     const response = await axios.post(lms.url, null, {params: params});
     if (response.data.message.includes('instance deleted')) {
-      return 'The class has been removed from the course.';
+      return 'The class has been unenrolled in the course.';
     }
     return response.data;
 };
