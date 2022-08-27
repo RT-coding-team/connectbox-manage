@@ -253,7 +253,7 @@ doCommand.sync = function() {
 
 //DICT:DO:shutdown: Halt system
 doCommand.shutdown = function() {
-  setTimeout(() => execute(`sudo shutdown -h now &`), 1000);
+  setTimeout(() => execute(`/usr/local/connectbox/bin/shutdownShell.sh &`), 1000);
 	return(true)
 }
 
