@@ -616,6 +616,48 @@ set.disable_stats = function (json){
 /**
  * Moodle functions
  */
+//NODICT:POST:lms_classes (json): Create a new class (cohort) for the LMS
+post.lms_classes = function (json) {
+  let data = json;
+  try {
+    data = JSON.parse(json);
+  } catch (e) {
+  }
+  return lms.post_class(data).then((response) =>  response);
+}
+//NODICT:GET:lms_classes (id?): Get a list of classes (cohorts) from the LMS. If id is supplied, get the specific class.
+get.lms_classes = function (id) {
+  return lms.get_classes(id).then((response) =>  response);
+}
+//NODICT:GET:lms_classes_roster (class_id): Get a list of users in the given class (cohort).
+get.lms_classes_roster = function (id) {
+  return lms.get_class_roster(id).then((response) =>  response);
+}
+//NODICT:PUT:lms_classes (json): Update an existing class for the LMS. JSON must have an id set.
+put.lms_classes = function (json) {
+  let data = json;
+  try {
+    data = JSON.parse(json);
+  } catch (e) {
+  }
+  if (!('id' in data)) {
+    return 'You must provide a valid id!';
+  }
+  const id = data.id;
+  return lms.put_class(id, data).then((response) =>  response);
+}
+//NODICT:DEL:lms_classes (id): Delete a class from the LMS
+del.lms_classes = function (id) {
+  return lms.delete_class(id).then((response) =>  response);
+}
+//NODICT:PUT:lms_enroll_class_user (class_id, user_id, json): Enroll a user into a class.
+put.lms_enroll_class_user = function (classid, userid, json) {
+  return lms.put_enroll_class_user(classid, userid).then((response) =>  response);
+}
+//NODICT:DEL:lms_unenroll_class_user (class_id, user_id): Remove a user from a class.
+del.lms_unenroll_class_user = function (classid, userid) {
+  return lms.del_unenroll_class_user(classid, userid).then((response) =>  response);
+}
 //NODICT:GET:lms_courses (id?): Get a list of courses from the LMS. If id is supplied, get the specific course.
 get.lms_courses = function (id) {
   if (id) {
@@ -643,6 +685,23 @@ put.lms_courses = function (json) {
 //NODICT:GET:lms_courses_roster (course_id): Get a list of users in the given course.
 get.lms_courses_roster = function (id) {
   return lms.get_course_roster(id).then((response) =>  response);
+}
+//NODICT:GET:lms_courses_classes_roster (course_id): Get a list of classes in the given course.
+get.lms_courses_classes_roster = function (id) {
+  return lms.get_course_class_roster(id).then((response) =>  response);
+}
+//NODICT:PUT:lms_enroll_class (course_id, class_id, json): Enroll a class (cohort) into a course. By default enrolls as student.  In JSON body set roleid to change role.
+put.lms_enroll_class = function (courseid, classid, json) {
+  let data = json;
+  try {
+    data = JSON.parse(json);
+  } catch (e) {
+  }
+  return lms.enroll_course_roster_class(courseid, classid, data).then((response) =>  response);
+}
+//NODICT:DEL:lms_unenroll_class (course_id, class_id): Unenroll a class (cohort) from a course.
+del.lms_unenroll_class = function (courseid, classid) {
+  return lms.unenroll_course_roster_class(courseid, classid).then((response) =>  response);
 }
 //NODICT:PUT:lms_enroll_user (course_id, user_id, json): Enroll a user into a course. By default enrolls as student.  In JSON body set roleid to change role.
 put.lms_enroll_user = function (courseid, userid, json) {

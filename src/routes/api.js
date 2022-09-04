@@ -39,6 +39,21 @@ router.get('/lms/courses/:id(\\d+)/users', async function get(req, res) {
   const data = {code:0,result: result};
   res.send(data);
 });
+router.get('/lms/courses/:id(\\d+)/classes', async function get(req, res) {
+  const result = await functions.get['lms_courses_classes_roster'](req.params.id);
+  const data = {code:0,result: result};
+  res.send(data);
+});
+router.put('/lms/courses/:id(\\d+)/classes/:classid(\\d+)', async function enroll(req, res) {
+  const result = await functions.put['lms_enroll_class'](req.params.id, req.params.classid, req.body);
+  const data = {code:0,result: result};
+  res.send(data);
+});
+router.delete('/lms/courses/:id(\\d+)/classes/:classid(\\d+)', async function unenroll(req, res) {
+  const result = await functions.del['lms_unenroll_class'](req.params.id, req.params.classid);
+  const data = {code:0,result: result};
+  res.send(data);
+});
 router.put('/lms/courses/:id(\\d+)/users/:userid(\\d+)', async function enroll(req, res) {
   const result = await functions.put['lms_enroll_user'](req.params.id, req.params.userid, req.body);
   const data = {code:0,result: result};
@@ -46,6 +61,21 @@ router.put('/lms/courses/:id(\\d+)/users/:userid(\\d+)', async function enroll(r
 });
 router.delete('/lms/courses/:id(\\d+)/users/:userid(\\d+)', async function unenroll(req, res) {
   const result = await functions.del['lms_unenroll_user'](req.params.id, req.params.userid);
+  const data = {code:0,result: result};
+  res.send(data);
+});
+router.get('/lms/classes/:id(\\d+)/users', async function get(req, res) {
+  const result = await functions.get['lms_classes_roster'](req.params.id);
+  const data = {code:0,result: result};
+  res.send(data);
+});
+router.put('/lms/classes/:id(\\d+)/users/:userid(\\d+)', async function enroll(req, res) {
+  const result = await functions.put['lms_enroll_class_user'](req.params.id, req.params.userid, req.body);
+  const data = {code:0,result: result};
+  res.send(data);
+});
+router.delete('/lms/classes/:id(\\d+)/users/:userid(\\d+)', async function unenroll(req, res) {
+  const result = await functions.del['lms_unenroll_class_user'](req.params.id, req.params.userid);
   const data = {code:0,result: result};
   res.send(data);
 });

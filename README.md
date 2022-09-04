@@ -58,6 +58,13 @@ Log into Moodle with an administration account.  First, we need to create a cust
     - Click Add Service
 - Click Add functions
     - Add the following functions:
+        - core_cohort_create_cohorts
+        - core_cohort_delete_cohort_members
+        - core_cohort_get_cohorts
+        - core_cohort_get_cohort_members
+        - core_cohort_update_cohorts
+        - core_cohort_delete_cohorts
+        - core_cohort_add_cohort_members
         - core_user_get_users
         - core_user_get_users_by_field
         - core_user_create_users
@@ -83,3 +90,12 @@ Now we need to generate the token.
 Lastly, add the token to functions.js.
 
 NOTE: To unenroll and enroll user, the course must have manual enrollment enabled. [This page](https://docs.moodle.org/400/en/Manual_enrolment) explains how to set up manual enrollment.
+
+If you want to use the Cohort enrollment/unenrollment features, you must follow these steps:
+
+- Install [this local plugin](https://moodle.org/plugins/local_ws_enrolcohort)
+- Add the following functions to Connectbox API service:
+    - local_ws_enrolcohort_add_instance
+    - local_ws_enrolcohort_delete_instance
+    - local_ws_enrolcohort_get_instances
+- Enable Cohort Sync by visiting Site administration > Plugins > Enrolments > Manage enrol plugins.
